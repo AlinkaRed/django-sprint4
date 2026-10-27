@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Count
-from django.utils import timezone
 
 from .constants import MAX_LENGTH
 
@@ -52,26 +50,6 @@ class Location(PublishedModel):
         return self.name
 
 
-class PostQuerySet(models.QuerySet):
-    def published(self):
-        return self.filter(
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=timezone.now(),
-        )
-
-    def with_related(self):
-        return (
-            self.select_related(
-                'author',
-                'category',
-                'location',
-            )
-            .annotate(comment_count=Count('comments'))
-            .order_by('-pub_date')
-        )
-
-
 class Post(PublishedModel):
     title = models.CharField('Заголовок', max_length=MAX_LENGTH)
     text = models.TextField('Текст')
@@ -107,12 +85,10 @@ class Post(PublishedModel):
         null=True,
     )
 
-    objects = PostQuerySet.as_manager()
-
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
-        ordering = ('-pub_date',)
+        ordering = ('-pub_date', '-id')
 
     def __str__(self):
         return self.title

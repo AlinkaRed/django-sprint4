@@ -28,7 +28,7 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        exclude = ('author', 'is_published')
+        exclude = ('author',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
